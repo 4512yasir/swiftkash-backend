@@ -1,28 +1,28 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRepaymentDto } from './dto/create-repayment.dto';
+import { LoansService } from '../loans/loans.service';
 
 @Injectable()
 export class RepaymentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private loansService: LoansService,
+  ) {}
 
   async create(dto: CreateRepaymentDto) {
     const loan = await this.prisma.loan.findUnique({
       where: { id: dto.loanId },
     });
 
-    if (!loan) {
-      throw new NotFoundException('Loan not found');
-    }
+    if (!loan) throw new NotFoundException('Loan not found');
 
     if (loan.status === 'PAID') {
-      throw new BadRequestException('Loan has already been paid');
+      throw new BadRequestException('Loan already fully paid');
     }
 
     if (dto.amount > loan.balance) {
-      throw new BadRequestException(
-        'Repayment amount cannot exceed remaining balance',
-      );
+      throw new BadRequestException('Cannot overpay loan');
     }
 
     const repayment = await this.prisma.repayment.create({
@@ -38,9 +38,10 @@ export class RepaymentsService {
       where: { id: loan.id },
       data: {
         balance: newBalance,
-        status: newBalance === 0 ? 'PAID' : 'ACTIVE',
       },
     });
+
+    await this.loansService.updateLoanStatus(loan.id);
 
     return {
       message: 'Repayment recorded successfully',
@@ -53,6 +54,9 @@ export class RepaymentsService {
     return this.prisma.repayment.findMany({
       include: {
         loan: true,
+      },
+      orderBy: {
+        paidAt: 'desc',
       },
     });
   }

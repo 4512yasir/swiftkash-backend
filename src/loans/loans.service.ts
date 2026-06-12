@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
+import { LoanStatusService } from './loan-status.service';
 
 @Injectable()
 export class LoansService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private loanStatusService: LoanStatusService,
+  ) {}
 
   async create(dto: CreateLoanDto) {
     const interestRate = 10;
@@ -25,7 +29,23 @@ export class LoansService {
         dueDate,
         clientId: dto.clientId,
         officerId: dto.officerId,
+        status: 'PENDING',
       },
+    });
+  }
+
+  async updateLoanStatus(loanId: string) {
+    const loan = await this.prisma.loan.findUnique({
+      where: { id: loanId },
+    });
+
+    if (!loan) return null;
+
+    const status = this.loanStatusService.calculateStatus(loan);
+
+    return this.prisma.loan.update({
+      where: { id: loanId },
+      data: { status },
     });
   }
 
