@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { LoansService } from './loans.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 
@@ -14,5 +14,10 @@ export class LoansController {
   @Get()
   findAll() {
     return this.loansService.findAll();
+  }
+
+  @Get(':id/statement')
+  getStatement(@Param('id') id: string) {
+    return this.loansService.getStatement(id);
   }
 }
