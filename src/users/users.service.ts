@@ -16,10 +16,7 @@ export class UsersService {
       throw new BadRequestException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(
-      createUserDto.password,
-      10,
-    );
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     return this.prisma.user.create({
       data: {
@@ -27,6 +24,14 @@ export class UsersService {
         email: createUserDto.email,
         password: hashedPassword,
         role: createUserDto.role,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }

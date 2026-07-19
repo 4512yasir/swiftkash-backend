@@ -9,6 +9,9 @@ import { LoansModule } from './loans/loans.module';
 import { RepaymentsModule } from './repayments/repayments.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { CreditScoreModule } from './credit-score/credit-score.module';
+import { EligibilityModule } from './eligibility/eligibility.module';
+import { LoanApplicationModule } from './loan-application/loan-application.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
     LoansModule,
     RepaymentsModule,
     DashboardModule,
+    CreditScoreModule,
+    EligibilityModule,
+    LoanApplicationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

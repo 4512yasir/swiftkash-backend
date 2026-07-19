@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import type { Response } from 'express';
+
 import { LoansService } from './loans.service';
 import { CreateLoanDto } from './dto/create-loan.dto';
 
@@ -7,17 +9,22 @@ export class LoansController {
   constructor(private readonly loansService: LoansService) {}
 
   @Post()
-  create(@Body() dto: CreateLoanDto) {
+  async create(@Body() dto: CreateLoanDto) {
     return this.loansService.create(dto);
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.loansService.findAll();
   }
 
   @Get(':id/statement')
-  getStatement(@Param('id') id: string) {
+  async getStatement(@Param('id') id: string) {
     return this.loansService.getStatement(id);
+  }
+
+  @Get(':id/statement/pdf')
+  async generatePdf(@Param('id') id: string, @Res() res: Response) {
+    return this.loansService.generateStatementPdf(id, res);
   }
 }

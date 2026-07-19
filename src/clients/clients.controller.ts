@@ -1,4 +1,10 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 
@@ -6,13 +12,18 @@ import { CreateClientDto } from './dto/create-client.dto';
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
+  @Post()
+  create(@Body() dto: CreateClientDto) {
+    return this.clientsService.create(dto);
+  }
+
   @Get()
   findAll() {
     return this.clientsService.findAll();
   }
 
-  @Post()
-  create(@Body() dto: CreateClientDto) {
-    return this.clientsService.create(dto);
+  @Get(':id/profile')
+  getProfile(@Param('id') id: string) {
+    return this.clientsService.getClientProfile(id);
   }
 }
